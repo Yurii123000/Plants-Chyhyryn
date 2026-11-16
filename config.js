@@ -13,10 +13,10 @@
 const CONFIG = {
   // Посилання на ваш проєкт Supabase (наприклад: 'https://abcdefghijklm.supabase.co')
   // Якщо залишити порожнім, сайт працюватиме в демонстраційному режимі з красивими прикладами рослин
-  SUPABASE_URL: '',
+  SUPABASE_URL: 'https://ostoqxpccrxnntrcxbsb.supabase.co',
 
   // Публічний анонімний ключ (anon public) з налаштувань API Supabase
-  SUPABASE_ANON_KEY: '',
+  SUPABASE_ANON_KEY: 'sb_publishable_h9BwgbMIMbKLKR2_-eUDNA_uGya3nU9',
 
   // Назва таблиці з рослинами в базі даних Supabase
   PLANTS_TABLE: 'plants',
