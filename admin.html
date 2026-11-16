@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Керування вітриною — Botanica</title>
+  
+  <!-- Google Fonts: Cormorant Garamond & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚙️</text></svg>">
+</head>
+<body>
+
+  <!-- 1. ЕКРАН АВТОРИЗАЦІЇ (ПЕРЕВІРКА ПАРОЛЯ) -->
+  <div id="authScreen" class="auth-wrapper">
+    <div class="auth-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+      </svg>
+    </div>
+    <h2 class="auth-title">Вхід до панелі</h2>
+    <p class="auth-subtitle">Введіть пароль адміністратора для керування асортиментом рослин</p>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <input type="password" id="adminPasswordInput" class="form-input" placeholder="Введіть пароль..." required autofocus>
+      </div>
+      <button type="submit" class="btn-primary" style="padding: 0.75rem;">
+        <span>Увійти в кабінет</span>
+      </button>
+      <div style="margin-top: 1.25rem;">
+        <a href="index.html" class="nav-link" style="justify-content: center; width: 100%;">← Повернутися на сайт</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- 2. ОСНОВНА ПАНЕЛЬ КЕРУВАННЯ (З'ЯВЛЯЄТЬСЯ ПІСЛЯ ВХОДУ) -->
+  <div id="adminDashboard" style="display: none;">
+    
+    <!-- Шапка адмінки -->
+    <header class="admin-header">
+      <div class="container admin-header-inner">
+        <div class="admin-brand">
+          <h1>Botanica</h1>
+          <span class="admin-tag">Панель керування</span>
+        </div>
+
+        <div class="admin-nav-actions">
+          <div id="supabaseStatusBadge" style="display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; padding: 0.35rem 0.75rem; border-radius: 9999px; background: #EEF3EF; color: var(--accent-sage); font-weight: 500;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #4A6B53;"></span>
+            <span id="supabaseStatusText">Підключення...</span>
+          </div>
+
+          <a href="index.html" class="nav-link" target="_blank">
+            <span>Переглянути сайт</span>
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </a>
+
+          <button type="button" id="logoutBtn" class="nav-link" style="color: var(--danger-color); border-color: #F0DCDC;">
+            <span>Вийти</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Основний контейнер -->
+    <main class="container" style="padding-bottom: 5rem;">
+
+      <!-- Підказка з налаштування Supabase, якщо ще не вказані ключі -->
+      <div id="setupHelpCard" style="display: none; background: #FAF5EB; border: 1px solid #EBDDC2; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="display: flex; gap: 1rem; align-items: flex-start;">
+          <div style="font-size: 1.8rem; line-height: 1;">💡</div>
+          <div>
+            <h3 style="font-family: var(--font-serif); font-size: 1.25rem; margin-bottom: 0.5rem; color: #73531A;">Як підключити вашу базу Supabase:</h3>
+            <ol style="margin-left: 1.25rem; font-size: 0.88rem; color: #5C4724; line-height: 1.6;">
+              <li>Створіть безкоштовний проєкт на <strong>supabase.com</strong>.</li>
+              <li>Скопіюйте вміст файлу <code>schema.sql</code> і запустіть його в <strong>SQL Editor</strong> на сайті Supabase (це створить таблицю та сховище для фото).</li>
+              <li>Вставте ваш <code>SUPABASE_URL</code> та <code>SUPABASE_ANON_KEY</code> у файл <code>config.js</code>.</li>
+            </ol>
+            <p style="font-size: 0.8rem; margin-top: 0.5rem; color: #8F7243;">Зараз панель працює в локальному демо-режимі. Ви можете додавати і видаляти рослини для тестування прямо в цьому браузері.</p>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1.35fr; gap: 2.5rem; align-items: start;">
+        
+        <!-- КОЛОНКА 1: ФОРМА ДОДАВАННЯ РОСЛИНИ -->
+        <section style="background: var(--bg-card); padding: 2rem; border-radius: 16px; border: 1px solid var(--border-light); box-shadow: var(--shadow-sm);">
+          <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-light);">
+            <h2 style="font-family: var(--font-serif); font-size: 1.8rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.25rem;">Додати рослину</h2>
+            <p style="font-size: 0.85rem; color: var(--text-secondary);">Позиція одразу з'явиться на головній сторінці вітрини</p>
+          </div>
+
+          <form id="addPlantForm">
+            
+            <!-- Поле 1: Завантаження фото -->
+            <div class="form-group">
+              <label class="form-label">
+                Фотографія рослини <small>(вертикальне фото, якість 4:5)</small>
+              </label>
+
+              <!-- Дропзона -->
+              <div class="upload-dropzone" id="dropzone">
+                <input type="file" id="plantFileInput" class="file-input-hidden" accept="image/*" required>
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <div class="upload-text">Натисніть або перетягніть фото сюди</div>
+                <div class="upload-subtext">Підтримуються JPG, PNG, WEBP (до 10 МБ)</div>
+              </div>
+
+              <!-- Прев'ю вибраного фото -->
+              <div class="preview-container" id="previewContainer">
+                <img src="" id="previewImg" class="preview-img" alt="Прев'ю рослини">
+                <button type="button" class="preview-remove-btn" id="removePhotoBtn" title="Видалити це фото">✕</button>
+              </div>
+            </div>
+
+            <!-- Поле 2: Назва рослини -->
+            <div class="form-group">
+              <label for="plantNameInput" class="form-label">Назва рослини</label>
+              <input type="text" id="plantNameInput" class="form-input" placeholder="Наприклад: Монстера Деліціоза" required>
+            </div>
+
+            <!-- Поле 3: Ціна -->
+            <div class="form-group">
+              <label for="plantPriceInput" class="form-label">Ціна (у грн)</label>
+              <input type="number" id="plantPriceInput" class="form-input" placeholder="650" min="1" step="1" required>
+            </div>
+
+            <!-- Поле 4: Опис, догляд та розміри -->
+            <div class="form-group">
+              <label for="plantDescInput" class="form-label">Короткий опис <small>(умови догляду, висота, горщик)</small></label>
+              <textarea id="plantDescInput" class="form-textarea" placeholder="Висота 65 см, діаметр горщика 17 см. Любить розсіяне світло, помірний полив раз на тиждень..."></textarea>
+            </div>
+
+            <!-- Кнопка збереження -->
+            <button type="submit" class="btn-primary" id="publishBtn">
+              <span id="publishBtnText">Опублікувати на сайті</span>
+              <div class="spinner" id="publishSpinner" style="display: none;"></div>
+            </button>
+          </form>
+        </section>
+
+        <!-- КОЛОНКА 2: СПИСОК ІСНУЮЧИХ РОСЛИН ТА КЕРУВАННЯ -->
+        <section>
+          <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 1.25rem;">
+            <div>
+              <h2 style="font-family: var(--font-serif); font-size: 1.8rem; font-weight: 500; color: var(--text-primary); margin-bottom: 0.2rem;">Рослини на вітрині</h2>
+              <p style="font-size: 0.85rem; color: var(--text-secondary);" id="adminListSubtitle">Завантаження...</p>
+            </div>
+
+            <button type="button" id="refreshListBtn" class="nav-link" title="Оновити список">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              <span>Оновити</span>
+            </button>
+          </div>
+
+          <!-- Список рослин -->
+          <div class="admin-plants-list" id="adminPlantsContainer">
+            <div style="padding: 3rem; text-align: center; color: var(--text-muted);">
+              Завантаження асортименту...
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Контейнер для сповіщень (Toast) -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Модальне вікно підтвердження видалення -->
+  <div class="modal-overlay" id="confirmDeleteModal">
+    <div class="modal-container" style="max-width: 400px; text-align: center; padding: 2rem 1.5rem;">
+      <div style="font-size: 2.2rem; color: var(--danger-color); margin-bottom: 0.75rem;">🗑️</div>
+      <h3 style="font-family: var(--font-serif); font-size: 1.4rem; margin-bottom: 0.5rem;">Видалити рослину?</h3>
+      <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1.5rem;" id="deleteConfirmMessage">
+        Рослину буде видалено з сайту, а її фотографію стерто зі сховища Supabase.
+      </p>
+      <div style="display: flex; gap: 0.75rem; justify-content: center;">
+        <button type="button" class="btn-copy-secondary" id="cancelDeleteBtn" style="width: auto; padding: 0.6rem 1.25rem;">Скасувати</button>
+        <button type="button" class="btn-danger" id="confirmDeleteActionBtn" style="padding: 0.6rem 1.25rem; font-size: 0.9rem;">Так, видалити</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Підключення бібліотеки Supabase та скриптів -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="config.js"></script>
+  <script src="supabase-client.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
