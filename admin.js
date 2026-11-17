@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
   loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const enteredPassword = adminPasswordInput.value.trim();
-    const correctPassword = (CONFIG.ADMIN_PASSWORD || 'admin').trim();
+    const correctPassword = (CONFIG.ADMIN_PASSWORD || 'My plans2026').trim();
 
     if (enteredPassword === correctPassword) {
       sessionStorage.setItem('botanica_admin_auth', 'true');
